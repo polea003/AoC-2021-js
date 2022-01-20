@@ -2,14 +2,74 @@ const fs = require('fs')
 
 let read_lines = fs.readFileSync('data/day4.data', 'utf8').split('\n\n')
 
-console.log(read_lines.slice(0,5))
+// console.log(read_lines.slice(0,5))
 
-picked_numbers = read_lines.shift().split(' ')
+picked_numbers = read_lines.shift().split(' ').join().split(',')
 
-let boards = read_lines.map(line => line.replaceAll('  ', ' ').split('\n')).map(board => board.map(line => line.split(' ')))
+let boards = read_lines.map(line => 
+    line.split('\n'))
+    .map(board => 
+        board.map(line => line.split(' ').filter(item => 
+            item !== ''
+            )
+        )
+    ).map(board => board.length > 5 ? board.slice(0,5) : board)
 
-for(let board of boards) {
 
+let found_flag = false
+picked_numbers.forEach(number => {
+    boards.forEach(board => {
+        if (!found_flag) {
+            checkForNumber(number, board)
+            // console.log(board)
+            if (checkForWinner (board)) {
+                console.log(calculateScore(number, board))
+                found_flag = true
+            }
+        }
+    })
+})
+
+// console.log(boards)
+
+
+function checkForNumber (number, board) {
+    board.forEach(line => {
+        line.forEach((num, index) => {
+            if (num === number) {
+                line[index] = 'x'
+            }
+        })
+    })
 }
 
-console.log(boards)
+function checkForWinner (board) {
+    for (let i = 0; i < 5; i++) {
+        numX = 0
+        numY = 0
+        for (let j = 0; j < 5; j++) {
+            if (board[i][j] === 'x') {
+                numX++
+            }
+            if (board[j][i] === 'x') {
+                numY++
+            }
+        }
+        if (numX === 5 || numY === 5) {
+            return true
+        }
+    }
+    return false
+}
+
+function calculateScore (number, board) {
+    let total = 0
+    board.forEach(row => {
+        row.forEach(item => {
+            if (item !== 'x') {
+                total += parseInt(item)
+            }
+        })
+    })
+    return total * number
+}
